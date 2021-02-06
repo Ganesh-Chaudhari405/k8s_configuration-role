@@ -11,7 +11,6 @@
    gpgkey: 
    - https://packages.cloud.google.com/yum/doc/yum-key.gpg 
    - https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-
 - name: "installation of kubeadm,docker engine and iproute-tc"
   package:
    name: 
@@ -21,25 +20,19 @@
    state: latest
 - name: "changing docker default driver cgroup to systemd driver"
   copy:
-    content: >
-            {
-             "exec-opts": ["native.cgroupdriver=systemd"]
-            }
+    content: {"exec-opts": ["native.cgroupdriver=systemd"]}
     dest: /etc/docker/daemon.json    
 - name: "start docker service"
   service:
        name: docker
        state: started
        enabled: true
-
 - name: "setting call-iptables to 1"
   shell: "echo 1 > /proc/sys/net/bridge/bridge-nf-call-iptables"   
   changed_when: false
-            
 - name: "pulling k8s master programs"
   command: "kubeadm config images pull"
   changed_when: false
-
 - name: "starting and enabling kubelete service"
   package:
       name: kubelet
@@ -47,14 +40,12 @@
       enable: true 
   ignore_errors: true  
   failed_when: false
-
 - name: "kubernetes setup"
   file:
      path: /root/.kube
      state: directory 
 - name: "for testing setup"
   command: "cp /etc/kubernetes/admin.conf /root/.kube/config"    
-
   ignore_errors: true 
 - name: "solving challeng of resources"
   block:
@@ -80,4 +71,3 @@
           src: /cred.j2
           dest: /k8s/
           flat: yes
-
