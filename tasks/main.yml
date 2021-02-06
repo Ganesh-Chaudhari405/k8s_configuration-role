@@ -49,22 +49,26 @@
   ignore_errors: true 
 - name: "solving challeng of resources"
   block:
-  - command: "kubeadm init"
-  rescue: 
-  - command: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=Mem --ignore-preflight-errors=NumCPU" 
+  - name: "initializing"
+    command: "kubeadm init"
+  rescue:
+  - name: "initializing"
+    command: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=Mem --ignore-preflight-errors=NumCPU" 
     ignore_errors: true
   always:  
     - name: "ceating tokens"
       command: "kubeadm token create --print-join-command"
       register: out
-    - file:
+    - name: "creating file" 
+      file:
        path: /cred
        state: touch  
     - name: "used for templating token"  
       template:
             src: master/templates/cred.j2
             dest: /cred.j2
-    - debug:
+    - name: "printing tokens"
+      debug:
          var: out.stdout 
     - name: "fetching token to join slave node"     
       fetch:
